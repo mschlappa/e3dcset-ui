@@ -1,0 +1,10 @@
+[Unit]
+Description=Tägliche E3DC SOH Messung
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

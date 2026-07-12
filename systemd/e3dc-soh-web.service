@@ -1,0 +1,13 @@
+[Unit]
+Description=E3DC SOH Monitor Web-App
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/e3dc-soh-monitor
+EnvironmentFile=-%h/.config/e3dc-soh-monitor/env
+ExecStart=/opt/e3dc-soh-monitor/.venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 8321
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E3DC SOH-Monitor</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">E3DC S10</p>
+          <h1>SOH-Monitor</h1>
+        </div>
+        <div id="healthBadge" class="health-badge">Prüfe Status...</div>
+      </header>
+
+      <section id="warning" class="warning hidden"></section>
+
+      <section class="status-grid">
+        <article class="status-card primary">
+          <div class="card-label">Gesamt-SOH</div>
+          <div id="sohValue" class="metric">--</div>
+          <div id="lastTimestamp" class="muted">Noch keine Messung</div>
+        </article>
+        <article class="status-card">
+          <div class="card-label">Relativer SOC</div>
+          <div id="rsocValue" class="metric small">--</div>
+        </article>
+        <article class="status-card">
+          <div class="card-label">Ladezyklen</div>
+          <div id="cyclesValue" class="metric small">--</div>
+        </article>
+        <article class="status-card action-card">
+          <button id="measureButton" class="measure-button" type="button">
+            <span id="buttonSpinner" class="spinner hidden"></span>
+            <span id="buttonText">Jetzt messen</span>
+          </button>
+          <div id="measureError" class="error-text"></div>
+        </article>
+      </section>
+
+      <section class="panel chart-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Verlauf</p>
+            <h2>Batterie-Gesundheit</h2>
+          </div>
+          <div class="range-control" aria-label="Zeitraum">
+            <button data-range="30" class="active">30 Tage</button>
+            <button data-range="90">90 Tage</button>
+            <button data-range="365">1 Jahr</button>
+            <button data-range="all">Alles</button>
+          </div>
+        </div>
+        <div id="emptyState" class="empty-state hidden">Noch keine Messungen.</div>
+        <div class="chart-wrap">
+          <canvas id="sohChart"></canvas>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <details open>
+          <summary>Letzte Messungen</summary>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Quelle</th>
+                  <th>SOH</th>
+                  <th>DCB-Werte</th>
+                  <th>Zyklen</th>
+                </tr>
+              </thead>
+              <tbody id="recentRows">
+                <tr><td colspan="5">Lade Messungen...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <script src="/static/chart.umd.js"></script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

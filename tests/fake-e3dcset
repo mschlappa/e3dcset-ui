@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+if [ "$FAKE_E3DCSET_FAIL" = "1" ]; then
+  echo "Socket receive error. errno 54" >&2
+  exit 2
+fi
+
+echo "debug line before json"
+cat <<'JSON'
+{"module":0,"data":{"BAT_RSOC":85.5,"BAT_ASOC":98.2,"BAT_CHARGE_CYCLES":234,"dcbs":[{"BAT_DCB_SOH":97.9,"BAT_DCB_CYCLE_COUNT":240},{"BAT_DCB_SOH":98.4,"BAT_DCB_CYCLE_COUNT":231}]}}
+JSON
