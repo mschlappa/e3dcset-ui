@@ -1,33 +1,47 @@
-# E3DC SOH-Monitor
+# e3dcset-ui
 
-Lokale Web-App zur Langzeit-Überwachung der Batterie-Gesundheit eines E3DC S10. Die App ruft `e3dcset -m 0 -j` auf, speichert jede Messung in SQLite und zeigt den Verlauf im Browser.
+Lokale Web-App zur Langzeit-Überwachung der Batterie-Gesundheit eines E3DC S10 Hauskraftwerks. Die App nutzt ein bereits installiertes und konfiguriertes [`e3dcset`](https://github.com/mschlappa/e3dcset), speichert jede Messung in SQLite und zeigt den SOH-Verlauf im Browser.
 
-## Funktionen
+![Screenshot der E3DC SOH-Monitor Oberfläche](docs/screenshot.png)
 
+## Features
+
+- Gesamt-SOH über `BAT_ASOC`
+- SOH pro DCB-Zellblock über den Modul-Dump `e3dcset -m 0 -j`
+- Verlauf als Chart für Gesamt-SOH und alle DCB-Zellblöcke
 - Manuelle Messung per Button
-- Tägliche Messung per systemd-User-Timer
-- Verlauf für Gesamt-SOH und DCB-Zellblöcke
-- Lokale SQLite-Datenbank mit Roh-JSON jeder Messung
-- Bind nur an `127.0.0.1`
+- Tägliche automatische Messung per systemd-User-Timer
+- Lokale SQLite-Datenbank inklusive komplettem Roh-JSON jeder Messung
+- Fehlerprotokollierung: fehlgeschlagene Messungen werden mit `ok=0` gespeichert
+- Keine Cloud, keine Authentifizierung, Bind nur an `127.0.0.1`
+- Offline-fähiges Frontend: Chart.js ist lokal gebundelt
+
+## Voraussetzungen
+
+- Linux Desktop, Debian/Ubuntu-basiert empfohlen
+- Python 3.10+
+- `e3dcset` ist installiert und funktioniert lokal
+- E3DC S10 ist aus dem lokalen Netz erreichbar
+- Optional: `systemd --user` für automatische Messungen
 
 ## Installation
 
 ```bash
 cd /opt
-sudo git clone <repo-url> e3dc-soh-monitor
-sudo chown -R "$USER:$USER" /opt/e3dc-soh-monitor
-cd /opt/e3dc-soh-monitor
+sudo git clone https://github.com/jarvis-schlappa/e3dcset-ui.git
+sudo chown -R "$USER:$USER" e3dcset-ui
+cd e3dcset-ui
 
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Falls du nicht nach `/opt` installieren willst, passe die systemd-Units entsprechend an.
+Falls du nicht nach `/opt/e3dcset-ui` installierst, passe die Pfade in den systemd-Units an.
 
 ## Konfiguration
 
-Die App liest Umgebungsvariablen. Für systemd liegt die optionale Datei hier:
+Die App liest Umgebungsvariablen. Für systemd liegt die optionale Environment-Datei hier:
 
 ```bash
 mkdir -p ~/.config/e3dc-soh-monitor
@@ -49,24 +63,34 @@ E3DC_SOH_PORT=8321
 ## Erste Messung testen
 
 ```bash
-cd /opt/e3dc-soh-monitor
+cd /opt/e3dcset-ui
 . .venv/bin/activate
 python measure.py --source manual
 ```
 
-Bei Erfolg entsteht die Datenbank unter `~/.local/share/e3dc-soh-monitor/soh.db`. Bei Fehlern wird trotzdem eine Messung mit `ok=0` und Fehlertext gespeichert.
+Bei Erfolg entsteht die Datenbank unter:
+
+```text
+~/.local/share/e3dc-soh-monitor/soh.db
+```
+
+Bei einem Fehler crasht die App nicht. Stattdessen wird eine Messung mit `ok=0` und Fehlertext gespeichert.
 
 ## Web-App starten
 
 ```bash
-cd /opt/e3dc-soh-monitor
+cd /opt/e3dcset-ui
 . .venv/bin/activate
 uvicorn app:app --host 127.0.0.1 --port 8321
 ```
 
-Browser: <http://127.0.0.1:8321>
+Dann im Browser öffnen:
 
-## systemd-User-Services
+```text
+http://127.0.0.1:8321
+```
+
+## Automatische Messung mit systemd
 
 ```bash
 mkdir -p ~/.config/systemd/user
@@ -100,4 +124,17 @@ loginctl enable-linger "$USER"
 - `GET /api/recent`
 - `POST /api/measure`
 
-Die App ist für localhost gedacht. Keine Authentifizierung, kein LAN-Expose.
+Alle Endpunkte liefern JSON. Die App ist absichtlich nur für localhost gedacht.
+
+## Entwicklung mit Fake-Daten
+
+Für UI-Tests ohne E3DC:
+
+```bash
+cd /opt/e3dcset-ui
+E3DCSET_BIN=$PWD/tests/fake-e3dcset \
+E3DC_SOH_DB=/tmp/e3dc-soh-api.db \
+.venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 8321
+```
+
+Das Fake-Binary gibt einen Modul-Dump mit zwei DCB-Zellblöcken zurück.

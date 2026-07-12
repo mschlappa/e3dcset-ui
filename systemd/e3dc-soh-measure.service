@@ -3,6 +3,6 @@ Description=E3DC SOH Messung
 
 [Service]
 Type=oneshot
-WorkingDirectory=/opt/e3dc-soh-monitor
+WorkingDirectory=/opt/e3dcset-ui
 EnvironmentFile=-%h/.config/e3dc-soh-monitor/env
-ExecStart=/opt/e3dc-soh-monitor/.venv/bin/python /opt/e3dc-soh-monitor/measure.py --source timer
+ExecStart=/opt/e3dcset-ui/.venv/bin/python /opt/e3dcset-ui/measure.py --source timer
