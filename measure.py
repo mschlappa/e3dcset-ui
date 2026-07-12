@@ -70,7 +70,11 @@ def run_e3dcset(settings: Settings) -> dict[str, Any]:
     if completed.returncode != 0:
         stderr = completed.stderr.strip() or completed.stdout.strip()
         raise RuntimeError(stderr or f"e3dcset exit code {completed.returncode}")
-    return _json_from_stdout(completed.stdout)
+    try:
+        return _json_from_stdout(completed.stdout)
+    except ValueError as exc:
+        output = completed.stderr.strip() or completed.stdout.strip()
+        raise RuntimeError(output or str(exc)) from exc
 
 
 def extract_values(raw: dict[str, Any]) -> dict[str, Any]:
