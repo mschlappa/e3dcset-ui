@@ -4,6 +4,12 @@ Lokale Web-App zur Langzeit-Überwachung der Batterie-Gesundheit eines E3DC S10 
 
 ![Screenshot der E3DC SOH-Monitor Oberfläche](docs/screenshot.png)
 
+## Installation
+
+Wenn du die App neu einrichtest, nimm die anfängerfreundliche Schritt-für-Schritt-Anleitung:
+
+**[INSTALL.md](INSTALL.md)**
+
 ## Features
 
 - Gesamt-SOH über `BAT_ASOC`
@@ -24,11 +30,11 @@ Lokale Web-App zur Langzeit-Überwachung der Batterie-Gesundheit eines E3DC S10 
 - E3DC S10 ist aus dem lokalen Netz erreichbar
 - Optional: `systemd --user` für automatische Messungen
 
-## Installation
+## Kurzinstallation
 
 ```bash
 cd /opt
-sudo git clone https://github.com/jarvis-schlappa/e3dcset-ui.git
+sudo git clone https://github.com/mschlappa/e3dcset-ui.git
 sudo chown -R "$USER:$USER" e3dcset-ui
 cd e3dcset-ui
 
