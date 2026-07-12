@@ -34,6 +34,13 @@ def _integer(value: Any) -> int | None:
     return int(number)
 
 
+def _first(data: dict[str, Any], *keys: str) -> Any:
+    for key in keys:
+        if key in data:
+            return data[key]
+    return None
+
+
 def _json_from_stdout(stdout: str) -> dict[str, Any]:
     for line in stdout.splitlines():
         candidate = line.strip()
@@ -87,16 +94,16 @@ def extract_values(raw: dict[str, Any]) -> dict[str, Any]:
             continue
         dcbs.append(
             {
-                "dcb_index": index,
+                "dcb_index": _integer(dcb.get("index")) if dcb.get("index") is not None else index,
                 "soh": _number(dcb.get("BAT_DCB_SOH")),
                 "cycle_count": _integer(dcb.get("BAT_DCB_CYCLE_COUNT")),
             }
         )
 
     return {
-        "soh": _number(data.get("BAT_ASOC")),
-        "rsoc": _number(data.get("BAT_RSOC")),
-        "charge_cycles": _integer(data.get("BAT_CHARGE_CYCLES")),
+        "soh": _number(_first(data, "BAT_ASOC", "BAT_REQ_ASOC")),
+        "rsoc": _number(_first(data, "BAT_RSOC", "BAT_REQ_RSOC")),
+        "charge_cycles": _integer(_first(data, "BAT_CHARGE_CYCLES", "BAT_REQ_CHARGE_CYCLES")),
         "dcbs": dcbs,
     }
 
