@@ -1,15 +1,20 @@
 :root {
+  --tanne: #175E54;
+  --tanne-dunkel: #0F433C;
+  --tanne-hell: #E8F0EE;
+  --dcb0: #4C8F84;
+  --dcb1: #93B8B1;
+  --bg: #F6F7F6;
+  --karte: #FFFFFF;
+  --text: #1E2523;
+  --text-leise: #6B7773;
+  --linie: #E3E8E6;
+  --warn: #B4552D;
+  --warn-bg: #FBEFE8;
+  --radius: 12px;
+  --schatten: 0 1px 2px rgba(20, 40, 36, 0.05), 0 4px 16px rgba(20, 40, 36, 0.06);
   color-scheme: light;
-  --green: #175E54;
-  --green-dark: #0E3F39;
-  --ink: #1C2D2B;
-  --muted: #677775;
-  --line: #DDE7E4;
-  --paper: #F6FAF8;
-  --card: #FFFFFF;
-  --warn: #A74432;
-  --shadow: 0 12px 34px rgba(23, 94, 84, 0.10);
-  font-family: "IBM Plex Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * {
@@ -19,292 +24,405 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  padding: 32px 20px 64px;
 }
 
 button {
   font: inherit;
 }
 
-.shell {
-  width: min(1180px, calc(100vw - 32px));
+.wrap {
+  max-width: 960px;
   margin: 0 auto;
-  padding: 32px 0 48px;
 }
 
-.topbar,
-.panel-header,
-.status-grid {
+header {
   display: flex;
-  gap: 16px;
-}
-
-.topbar {
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 22px;
-}
-
-.eyebrow {
-  margin: 0 0 4px;
-  color: var(--green);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-h1,
-h2 {
-  margin: 0;
-  letter-spacing: 0;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
 h1 {
-  font-size: clamp(2rem, 3vw, 3.2rem);
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
-h2 {
-  font-size: 1.25rem;
+h1 .sub {
+  color: var(--text-leise);
+  font-weight: 400;
 }
 
-.health-badge {
-  border: 1px solid var(--line);
+.system-tag {
+  border: 1px solid var(--linie);
   border-radius: 999px;
-  padding: 8px 12px;
-  background: #EBF5F1;
-  color: var(--green-dark);
-  font-weight: 700;
-}
-
-.health-badge.warn {
-  background: #FFF2EE;
-  color: var(--warn);
-}
-
-.warning {
-  border-left: 4px solid var(--warn);
-  margin-bottom: 16px;
-  padding: 12px 14px;
-  background: #FFF6F2;
-  color: var(--warn);
-  border-radius: 8px;
-}
-
-.hidden {
-  display: none !important;
-}
-
-.status-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.25fr;
-  margin-bottom: 18px;
-}
-
-.status-card,
-.panel {
-  background: var(--card);
-  border: 1px solid rgba(23, 94, 84, 0.10);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-}
-
-.status-card {
-  min-height: 138px;
-  padding: 20px;
-}
-
-.status-card.primary {
-  background: linear-gradient(135deg, #FFFFFF 0%, #ECF6F2 100%);
-}
-
-.card-label,
-.muted {
-  color: var(--muted);
-}
-
-.card-label {
-  margin-bottom: 10px;
-  font-weight: 700;
-}
-
-.metric {
+  padding: 4px 12px;
+  background: var(--karte);
+  color: var(--text-leise);
   font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: clamp(2.2rem, 5vw, 4.4rem);
-  font-weight: 700;
+  font-size: 12px;
+}
+
+.karte {
+  background: var(--karte);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+}
+
+.status {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 32px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 28px 32px;
+}
+
+.soh-gross,
+.kz .wert,
+td.mono {
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+.soh-gross .wert {
+  color: var(--tanne);
+  font-size: 56px;
+  font-weight: 600;
+  letter-spacing: 0;
   line-height: 1;
-  color: var(--green-dark);
   white-space: nowrap;
 }
 
-.metric.small {
-  font-size: clamp(1.8rem, 3vw, 3rem);
+.soh-gross small {
+  font-size: 28px;
+  font-weight: 500;
 }
 
-.action-card {
+.label {
+  color: var(--text-leise);
+  font-size: 12px;
+}
+
+.soh-gross .label {
+  margin-top: 6px;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.kennzahlen {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 40px;
 }
 
-.measure-button {
+.kz .wert {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.dcb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.chip {
+  border-radius: 6px;
+  padding: 3px 10px;
+  background: var(--tanne-hell);
+  color: var(--tanne-dunkel);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+}
+
+.chip b {
+  font-weight: 600;
+}
+
+.dcb-label {
+  margin-top: 4px;
+}
+
+.mess-bereich {
+  text-align: right;
+}
+
+.messen {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 48px;
+  gap: 10px;
   border: 0;
   border-radius: 8px;
-  padding: 0 18px;
-  background: var(--green);
-  color: white;
+  padding: 12px 22px;
+  background: var(--tanne);
+  color: #FFFFFF;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 500;
+  transition: background 0.15s;
 }
 
-.measure-button:disabled {
+.messen:hover {
+  background: var(--tanne-dunkel);
+}
+
+.messen:disabled {
+  background: #9AB5AF;
   cursor: wait;
-  opacity: 0.75;
 }
 
 .spinner {
-  width: 16px;
-  height: 16px;
-  margin-right: 9px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  display: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-top-color: #FFFFFF;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: dreh 0.7s linear infinite;
 }
 
-@keyframes spin {
+.messen.laeuft .spinner {
+  display: inline-block;
+}
+
+@keyframes dreh {
   to {
     transform: rotate(360deg);
   }
 }
 
-.error-text {
+.zeitstempel {
   margin-top: 10px;
+  color: var(--text-leise);
+  font-size: 12px;
+}
+
+.zeitstempel .quelle {
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+.mess-fehler {
+  max-width: 240px;
+  margin-top: 8px;
   color: var(--warn);
-  font-size: 0.9rem;
-  word-break: break-word;
+  font-size: 12px;
+  text-align: left;
 }
 
-.panel {
-  margin-top: 18px;
-  padding: 22px;
+.warnung {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin: -8px 0 20px;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: var(--warn-bg);
+  color: var(--warn);
+  font-size: 13px;
 }
 
-.panel-header {
+.warnung.sichtbar {
+  display: flex;
+}
+
+.chart-karte {
+  margin-bottom: 20px;
+  padding: 24px 28px 20px;
+}
+
+.chart-kopf {
+  display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   margin-bottom: 16px;
 }
 
-.range-control {
-  display: inline-flex;
-  border: 1px solid var(--line);
+.chart-kopf h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.bereich-schalter {
+  display: flex;
   border-radius: 8px;
-  overflow: hidden;
-  background: #F9FCFB;
+  padding: 3px;
+  background: var(--bg);
 }
 
-.range-control button {
-  min-height: 36px;
+.bereich-schalter button {
   border: 0;
-  border-right: 1px solid var(--line);
-  padding: 0 12px;
+  border-radius: 6px;
+  padding: 6px 14px;
   background: transparent;
-  color: var(--muted);
+  color: var(--text-leise);
   cursor: pointer;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.range-control button:last-child {
-  border-right: 0;
+.bereich-schalter button.aktiv {
+  background: var(--karte);
+  color: var(--tanne-dunkel);
+  box-shadow: 0 1px 3px rgba(20, 40, 36, 0.12);
 }
 
-.range-control button.active {
-  background: var(--green);
-  color: #FFFFFF;
-}
-
-.chart-wrap {
+.chart-box {
   position: relative;
-  height: 390px;
+  height: 320px;
 }
 
-.empty-state {
-  display: grid;
+.leer {
+  display: none;
   min-height: 120px;
   place-items: center;
-  color: var(--muted);
+  color: var(--text-leise);
+  font-size: 14px;
 }
 
-details summary {
+.leer.sichtbar {
+  display: grid;
+}
+
+details.tabelle {
+  overflow: hidden;
+  padding: 0;
+}
+
+details.tabelle summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
   cursor: pointer;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 600;
+  list-style: none;
+}
+
+details.tabelle summary::after {
+  content: "▾";
+  color: var(--text-leise);
+  transition: transform 0.2s;
+}
+
+details.tabelle[open] summary::after {
+  transform: rotate(180deg);
 }
 
 .table-wrap {
   overflow-x: auto;
-  margin-top: 16px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-}
-
-th,
-td {
-  border-bottom: 1px solid var(--line);
-  padding: 12px 10px;
-  text-align: left;
-  vertical-align: top;
+  font-size: 13px;
 }
 
 th {
-  color: var(--muted);
-  font-size: 0.84rem;
+  border-top: 1px solid var(--linie);
+  padding: 8px 28px;
+  color: var(--text-leise);
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
 }
 
-td:nth-child(3),
-td:nth-child(5) {
+td {
+  border-top: 1px solid var(--linie);
+  padding: 8px 28px;
   font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  white-space: nowrap;
 }
 
-tr.failed {
-  color: var(--muted);
-  background: #F4F4F1;
+td.quelle-zelle,
+td.fehltext {
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
 }
 
-@media (max-width: 860px) {
-  .shell {
-    width: min(100vw - 20px, 1180px);
-    padding-top: 18px;
+tr.fehler td {
+  color: var(--text-leise);
+}
+
+.fehltext {
+  font-style: italic;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: var(--tanne-hell);
+  color: var(--tanne-dunkel);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 11px;
+}
+
+.badge.manuell {
+  background: #EDEAF5;
+  color: #4A3E78;
+}
+
+footer {
+  margin-top: 28px;
+  color: var(--text-leise);
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  body {
+    padding: 20px 12px 44px;
   }
 
-  .topbar,
-  .panel-header {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .status-grid {
+  .status {
     grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 24px 22px;
   }
 
-  .chart-wrap {
-    height: 320px;
+  .mess-bereich {
+    text-align: left;
   }
 
-  .range-control {
+  .mess-fehler {
+    max-width: none;
+  }
+
+  .kennzahlen {
+    gap: 22px;
+  }
+
+  .chart-karte {
+    padding: 20px 18px 18px;
+  }
+
+  .chart-box {
+    height: 300px;
+  }
+
+  .bereich-schalter {
     width: 100%;
   }
 
-  .range-control button {
+  .bereich-schalter button {
     flex: 1;
-    padding: 0 8px;
+    padding: 6px 8px;
+  }
+
+  th,
+  td {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 }

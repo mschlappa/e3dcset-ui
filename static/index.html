@@ -7,81 +7,75 @@
     <link rel="stylesheet" href="/static/style.css">
   </head>
   <body>
-    <main class="shell">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">E3DC S10</p>
-          <h1>SOH-Monitor</h1>
-        </div>
-        <div id="healthBadge" class="health-badge">Prüfe Status...</div>
+    <div class="wrap">
+      <header>
+        <h1>SOH-Monitor <span class="sub">· E3DC S10</span></h1>
+        <span id="systemTag" class="system-tag">Modul 0 · prüfe Zellblöcke</span>
       </header>
 
-      <section id="warning" class="warning hidden"></section>
+      <section class="karte status">
+        <div class="soh-gross">
+          <div class="wert"><span id="sohWert">--</span><small> %</small></div>
+          <div class="label">State of Health</div>
+        </div>
 
-      <section class="status-grid">
-        <article class="status-card primary">
-          <div class="card-label">Gesamt-SOH</div>
-          <div id="sohValue" class="metric">--</div>
-          <div id="lastTimestamp" class="muted">Noch keine Messung</div>
-        </article>
-        <article class="status-card">
-          <div class="card-label">Relativer SOC</div>
-          <div id="rsocValue" class="metric small">--</div>
-        </article>
-        <article class="status-card">
-          <div class="card-label">Ladezyklen</div>
-          <div id="cyclesValue" class="metric small">--</div>
-        </article>
-        <article class="status-card action-card">
-          <button id="measureButton" class="measure-button" type="button">
-            <span id="buttonSpinner" class="spinner hidden"></span>
-            <span id="buttonText">Jetzt messen</span>
+        <div class="kennzahlen-block">
+          <div class="kennzahlen">
+            <div class="kz">
+              <div class="wert" id="rsocWert">--</div>
+              <div class="label">Ladezustand (SOC)</div>
+            </div>
+            <div class="kz">
+              <div class="wert" id="zyklenWert">--</div>
+              <div class="label">Ladezyklen</div>
+            </div>
+            <div class="kz dcb-kz">
+              <div id="dcbChips" class="dcb-chips"></div>
+              <div class="label dcb-label">SOH je Zellblock</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mess-bereich">
+          <button class="messen" id="messenBtn" type="button">
+            <span id="buttonSpinner" class="spinner"></span>
+            <span id="messenLabel">Jetzt messen</span>
           </button>
-          <div id="measureError" class="error-text"></div>
-        </article>
+          <div class="zeitstempel">
+            Letzte Messung: <span id="letzteMessung">noch keine</span>
+          </div>
+          <div id="measureError" class="mess-fehler"></div>
+        </div>
       </section>
 
-      <section class="panel chart-panel">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Verlauf</p>
-            <h2>Batterie-Gesundheit</h2>
-          </div>
-          <div class="range-control" aria-label="Zeitraum">
-            <button data-range="30" class="active">30 Tage</button>
+      <div class="warnung" id="warnung"></div>
+
+      <section class="karte chart-karte">
+        <div class="chart-kopf">
+          <h2>SOH-Verlauf</h2>
+          <div class="bereich-schalter" id="bereichSchalter">
+            <button data-range="30">30 Tage</button>
             <button data-range="90">90 Tage</button>
             <button data-range="365">1 Jahr</button>
-            <button data-range="all">Alles</button>
+            <button data-range="all" class="aktiv">Alles</button>
           </div>
         </div>
-        <div id="emptyState" class="empty-state hidden">Noch keine Messungen.</div>
-        <div class="chart-wrap">
-          <canvas id="sohChart"></canvas>
-        </div>
+        <div id="emptyState" class="leer">Noch keine Messungen.</div>
+        <div class="chart-box"><canvas id="chart"></canvas></div>
       </section>
 
-      <section class="panel table-panel">
-        <details open>
-          <summary>Letzte Messungen</summary>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Datum</th>
-                  <th>Quelle</th>
-                  <th>SOH</th>
-                  <th>DCB-Werte</th>
-                  <th>Zyklen</th>
-                </tr>
-              </thead>
-              <tbody id="recentRows">
-                <tr><td colspan="5">Lade Messungen...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </details>
-      </section>
-    </main>
+      <details class="karte tabelle" open>
+        <summary>Letzte Messungen</summary>
+        <div class="table-wrap">
+          <table>
+            <thead id="tableHead"></thead>
+            <tbody id="tabelleBody"></tbody>
+          </table>
+        </div>
+      </details>
+
+      <footer id="footerInfo">e3dcset · SQLite</footer>
+    </div>
 
     <script src="/static/chart.umd.js"></script>
     <script src="/static/app.js"></script>
