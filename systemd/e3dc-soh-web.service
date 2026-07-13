@@ -1,6 +1,5 @@
 [Unit]
 Description=E3DC SOH Monitor Web-App
-After=network-online.target
 
 [Service]
 Type=simple

@@ -21,10 +21,10 @@ for arg in "$@"; do
 Installiert den E3DC SOH Monitor im aktuellen Ordner.
 
 Optionen:
-  -y, --yes       Rückfragen automatisch mit Ja beantworten
-  --no-systemd   systemd-User-Services nicht einrichten
-  --no-measure   erste Testmessung überspringen
-  -h, --help     Hilfe anzeigen
+  -y, --yes        Rückfragen automatisch mit Ja beantworten
+  --no-systemd    systemd-User-Services nicht einrichten
+  --no-measure    erste Testmessung überspringen
+  -h, --help      Hilfe anzeigen
 EOF
       exit 0
       ;;
@@ -49,6 +49,8 @@ fail() {
   exit 1
 }
 
+trap 'rc=$?; fail "Unerwarteter Abbruch in Zeile $LINENO (Exit $rc)"' ERR
+
 command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
@@ -59,7 +61,8 @@ ask_yes_no() {
   local answer
 
   if [[ "$ASSUME_YES" -eq 1 ]]; then
-    return 0
+    [[ "$default" == "y" ]]
+    return
   fi
 
   if [[ "$default" == "y" ]]; then
@@ -109,12 +112,34 @@ first_existing_file() {
 
 find_home_file() {
   local name="$1"
-  find "$HOME" -maxdepth 5 -type f -name "$name" 2>/dev/null | head -n 1
+  find "$HOME" -maxdepth 5 -type f -name "$name" -print -quit 2>/dev/null
 }
 
 find_home_executable() {
   local name="$1"
-  find "$HOME" -maxdepth 5 -type f -name "$name" -perm -u+x 2>/dev/null | head -n 1
+  find "$HOME" -maxdepth 5 -type f -name "$name" -perm -u+x -print -quit 2>/dev/null
+}
+
+env_quote() {
+  local value="$1"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//\$/\\$}"
+  value="${value//\`/\\\`}"
+  printf '"%s"' "$value"
+}
+
+shell_arg_quote() {
+  local value="$1"
+  value="${value//\'/\'\\\'\'}"
+  printf "'%s'" "$value"
+}
+
+env_file_value() {
+  local key="$1"
+  awk -F= -v key="$key" '$1 == key { value=$0; sub(/^[^=]*=/, "", value); print value }' "$ENV_FILE" |
+    tail -n 1 |
+    sed -E 's/^"(.*)"$/\1/'
 }
 
 install_debian_packages_if_wanted() {
@@ -136,13 +161,13 @@ write_env_file() {
 
   mkdir -p "$ENV_DIR"
   if [[ -n "$e3dcset_tags" ]]; then
-    e3dcset_args="-t $e3dcset_tags"
+    e3dcset_args="-t $(shell_arg_quote "$e3dcset_tags")"
   fi
 
   cat > "$ENV_FILE" <<EOF
-E3DCSET_BIN=$e3dcset_bin
-E3DCSET_CONFIG=$e3dcset_config
-E3DCSET_ARGS="$e3dcset_args"
+E3DCSET_BIN=$(env_quote "$e3dcset_bin")
+E3DCSET_CONFIG=$(env_quote "$e3dcset_config")
+E3DCSET_ARGS=$(env_quote "$e3dcset_args")
 E3DC_BATTERY_MODULE=0
 E3DC_SOH_HOST=127.0.0.1
 E3DC_SOH_PORT=8321
@@ -155,13 +180,12 @@ install_systemd_units() {
   cat > "$SYSTEMD_DIR/e3dc-soh-web.service" <<EOF
 [Unit]
 Description=E3DC SOH Monitor Web-App
-After=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=$APP_DIR
-EnvironmentFile=-%h/.config/e3dc-soh-monitor/env
-ExecStart=$APP_DIR/.venv/bin/python $APP_DIR/app.py
+WorkingDirectory=$(env_quote "$APP_DIR")
+EnvironmentFile=-$(env_quote "$ENV_FILE")
+ExecStart=$(env_quote "$APP_DIR/.venv/bin/python") $(env_quote "$APP_DIR/app.py")
 Restart=on-failure
 
 [Install]
@@ -174,9 +198,9 @@ Description=E3DC SOH Messung
 
 [Service]
 Type=oneshot
-WorkingDirectory=$APP_DIR
-EnvironmentFile=-%h/.config/e3dc-soh-monitor/env
-ExecStart=$APP_DIR/.venv/bin/python $APP_DIR/measure.py --source timer
+WorkingDirectory=$(env_quote "$APP_DIR")
+EnvironmentFile=-$(env_quote "$ENV_FILE")
+ExecStart=$(env_quote "$APP_DIR/.venv/bin/python") $(env_quote "$APP_DIR/measure.py") --source timer
 EOF
 
   cat > "$SYSTEMD_DIR/e3dc-soh-measure.timer" <<'EOF'
@@ -195,6 +219,15 @@ EOF
   systemctl --user daemon-reload
   systemctl --user enable --now e3dc-soh-web.service
   systemctl --user enable --now e3dc-soh-measure.timer
+}
+
+warn_if_port_is_busy() {
+  local port
+  port="$(env_file_value E3DC_SOH_PORT)"
+  port="${port:-8321}"
+  if command_exists ss && ss -ltn "sport = :$port" 2>/dev/null | grep -q ":$port"; then
+    warn "Port $port ist belegt. Falls die App bereits manuell läuft, kann der Service-Start fehlschlagen."
+  fi
 }
 
 info "Installiere $APP_NAME"
@@ -219,6 +252,11 @@ python_is_supported python3 || fail "Python $PYTHON_VERSION ist zu alt. Benötig
 ok "Python $PYTHON_VERSION"
 
 info "Python-Umgebung vorbereiten"
+if [[ -d "$APP_DIR/.venv" ]] && ! "$APP_DIR/.venv/bin/python" --version >/dev/null 2>&1; then
+  warn "Vorhandene .venv ist unvollständig; sie wird neu erstellt."
+  python3 -m venv --clear "$APP_DIR/.venv"
+fi
+
 python3 -m venv "$APP_DIR/.venv" || {
   warn "Virtuelle Umgebung konnte nicht erstellt werden. Auf Debian/Ubuntu fehlt oft python3-venv."
   install_debian_packages_if_wanted
@@ -267,8 +305,20 @@ else
 
   if [[ -z "$E3DCSET_BIN" ]]; then
     warn "e3dcset wurde nicht automatisch gefunden."
-    read -r -p "Pfad zu e3dcset eingeben [/usr/local/bin/e3dcset]: " E3DCSET_BIN
-    E3DCSET_BIN="${E3DCSET_BIN:-/usr/local/bin/e3dcset}"
+    if [[ "$ASSUME_YES" -eq 1 || ! -t 0 ]]; then
+      E3DCSET_BIN="/usr/local/bin/e3dcset"
+      warn "Verwende Default: $E3DCSET_BIN. Bitte bei Bedarf in $ENV_FILE korrigieren."
+    else
+      read -r -p "Pfad zu e3dcset eingeben [/usr/local/bin/e3dcset]: " E3DCSET_BIN
+      E3DCSET_BIN="${E3DCSET_BIN:-/usr/local/bin/e3dcset}"
+    fi
+  fi
+
+  if [[ -z "$E3DCSET_CONFIG" ]]; then
+    warn "Keine e3dcset.config gefunden. Das ist ok, wenn e3dcset seine Config selbst findet; sonst E3DCSET_CONFIG in $ENV_FILE setzen."
+  fi
+  if [[ -z "$E3DCSET_TAGS" ]]; then
+    warn "Keine e3dcset.tags gefunden. Das ist ok, wenn e3dcset ohne explizite Tag-Datei funktioniert; sonst E3DCSET_ARGS in $ENV_FILE setzen."
   fi
 
   write_env_file "$E3DCSET_BIN" "$E3DCSET_CONFIG" "$E3DCSET_TAGS"
@@ -295,8 +345,15 @@ if [[ "$SKIP_SYSTEMD" -eq 0 ]]; then
     if ! systemctl --user show-environment >/dev/null 2>&1; then
       warn "systemd --user ist in dieser Session nicht verfügbar; Autostart wird übersprungen."
     elif ask_yes_no "Web-App und tägliche Messung als systemd-User-Service einrichten?" "y"; then
+      warn_if_port_is_busy
       install_systemd_units
       ok "systemd-User-Services aktiviert"
+      if command_exists loginctl && ask_yes_no "Messungen auch ohne aktive Login-Session ermöglichen?" "n"; then
+        loginctl enable-linger "$USER"
+        ok "Linger für $USER aktiviert"
+      else
+        warn "Ohne Linger laufen systemd-User-Timer nur zuverlässig bei aktiver Benutzer-Session."
+      fi
     fi
   else
     warn "systemctl nicht gefunden; Autostart wird übersprungen."

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,9 +36,7 @@ def load_settings() -> Settings:
         )
     ).expanduser()
 
-    args = tuple(
-        part for part in os.environ.get("E3DCSET_ARGS", "").split() if part
-    )
+    args = tuple(shlex.split(os.environ.get("E3DCSET_ARGS", "")))
 
     return Settings(
         e3dcset_bin=os.environ.get("E3DCSET_BIN", "/usr/local/bin/e3dcset"),
