@@ -4,6 +4,35 @@ Diese Anleitung installiert `e3dcset-ui` auf einem Linux-Rechner, auf dem `e3dcs
 
 Die App selbst steuert den E3DC nicht. Sie liest nur den Batterie-Modul-Dump aus, speichert Messungen in SQLite und zeigt den Verlauf im Browser.
 
+## Schnellweg: Installationsskript
+
+Wenn du das Repository schon auf dem Zielrechner hast:
+
+```bash
+cd e3dcset-ui
+./install.sh
+```
+
+Das Skript erledigt:
+
+- Python-Version prüfen
+- virtuelle Umgebung `.venv` anlegen
+- Python-Pakete installieren
+- `~/.config/e3dc-soh-monitor/env` erstellen, falls sie fehlt
+- bekannte `e3dcset`-Pfade automatisch erkennen, inklusive `~/projects/e3dcset*`
+- optional eine erste Messung starten
+- optional systemd-User-Services für Web-App und tägliche Messung aktivieren
+
+Nützliche Varianten:
+
+```bash
+./install.sh --no-systemd
+./install.sh --no-measure
+./install.sh --yes
+```
+
+Die folgenden Schritte beschreiben die manuelle Installation, falls du lieber alles einzeln prüfen möchtest.
+
 ## 1. Vorher prüfen: Funktioniert e3dcset?
 
 Melde dich auf dem Zielrechner an und teste zuerst `e3dcset`.
