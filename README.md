@@ -6,7 +6,15 @@ Lokale Web-App zur Langzeit-Überwachung der Batterie-Gesundheit eines E3DC S10 
 
 ## Installation
 
-Wenn du die App neu einrichtest, nimm die anfängerfreundliche Schritt-für-Schritt-Anleitung:
+Wenn du die App neu einrichtest, nimm das Installationsskript:
+
+```bash
+./install.sh
+```
+
+Das Skript richtet die Python-Umgebung ein, erstellt bei Bedarf die Konfiguration, kann eine erste Messung testen und optional die systemd-User-Services aktivieren.
+
+Für die manuelle Schritt-für-Schritt-Anleitung:
 
 **[INSTALL.md](INSTALL.md)**
 
@@ -38,12 +46,8 @@ sudo git clone https://github.com/mschlappa/e3dcset-ui.git
 sudo chown -R "$USER:$USER" e3dcset-ui
 cd e3dcset-ui
 
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
+./install.sh
 ```
-
-Falls du nicht nach `/opt/e3dcset-ui` installierst, passe die Pfade in den systemd-Units an.
 
 ## Konfiguration
 
