@@ -21,7 +21,7 @@ for arg in "$@"; do
 Installiert den E3DC SOH Monitor im aktuellen Ordner.
 
 Optionen:
-  -y, --yes        Rückfragen automatisch mit Ja beantworten
+  -y, --yes       Rückfragen automatisch mit Ja beantworten
   --no-systemd    systemd-User-Services nicht einrichten
   --no-measure    erste Testmessung überspringen
   -h, --help      Hilfe anzeigen
@@ -183,8 +183,8 @@ Description=E3DC SOH Monitor Web-App
 
 [Service]
 Type=simple
-WorkingDirectory=$(env_quote "$APP_DIR")
-EnvironmentFile=-$(env_quote "$ENV_FILE")
+WorkingDirectory=$APP_DIR
+EnvironmentFile=-$ENV_FILE
 ExecStart=$(env_quote "$APP_DIR/.venv/bin/python") $(env_quote "$APP_DIR/app.py")
 Restart=on-failure
 
@@ -198,8 +198,8 @@ Description=E3DC SOH Messung
 
 [Service]
 Type=oneshot
-WorkingDirectory=$(env_quote "$APP_DIR")
-EnvironmentFile=-$(env_quote "$ENV_FILE")
+WorkingDirectory=$APP_DIR
+EnvironmentFile=-$ENV_FILE
 ExecStart=$(env_quote "$APP_DIR/.venv/bin/python") $(env_quote "$APP_DIR/measure.py") --source timer
 EOF
 
